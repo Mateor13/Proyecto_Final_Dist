@@ -186,7 +186,8 @@
 
             <label for="unidad">Unidades en Stock:</label>
             <input type="number" name="unidad" id="unidad" value="{{ unidad|default('') }}" 
-                   placeholder="Cantidad disponible" min="0" step="1" required>
+                placeholder="Cantidad disponible" min="0" step="1" required 
+                style="width: 100%; padding: 12px; margin-bottom: 16px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: inherit; transition: border-color 0.2s;">
 
             <label for="categoria">Categoría:</label>
             <input type="text" name="categoria" id="categoria" value="{{ categoria|default('') }}" 
