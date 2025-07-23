@@ -6,10 +6,6 @@
 - **García Mireya**
 - **Torres Mateo**
 
-## 📁 Recursos Adicionales
-**Carpeta con imágenes de arquitectura (maestro, esclavo e información de red):** 
-[Descargar carpeta comprimida](https://drive.google.com/drive/folders/1U3R5A4JnMzCt7g_5L0uYds1PtGnNo4ix?usp=sharing)
-
 ## 🚀 ¿Qué hace este proyecto?
 
 Este proyecto es un **sistema web** que permite gestionar usuarios y productos de manera eficiente. Lo especial de este sistema es que utiliza una **arquitectura distribuida** con múltiples servidores y un balanceador de carga para manejar muchas solicitudes al mismo tiempo.
@@ -23,6 +19,10 @@ Este proyecto es un **sistema web** que permite gestionar usuarios y productos d
   - Descripción detallada
   - Cantidad disponible
   - Categoría
+- **Actualizar productos**: Puedes actualizar todos los campos de un producto excepto el código.
+- **Eliminar productos**: Puedes eliminar productos desde la tabla, con confirmación de seguridad.
+- **Mensajes de confirmación**: Al eliminar o actualizar, se muestra un mensaje de éxito o error en pantalla.
+- **Validaciones mejoradas**: Los formularios validan correctamente los datos antes de guardar o actualizar.
 
 ## 🏗️ ¿Cómo está construido?
 
@@ -75,17 +75,6 @@ docker-compose up --build
    - Abrir navegador web
    - Ir a: `http://localhost:8080`
 
-## 📋 Funciones del Sistema
-
-### Para Usuarios:
-- **Página de inicio**: Bienvenida al sistema
-- **Registro**: Crear cuenta nueva con nombre, apellido, email y contraseña
-- **Login**: Iniciar sesión con email y contraseña
-
-### Para Productos:
-- **Registro de productos**: Agregar nuevos productos al catálogo
-- **Campos requeridos**: Nombre, código, descripción, unidades y categoría
-
 ## 🔧 Tecnologías Utilizadas
 
 - **Python 3**: Lenguaje de programación principal
@@ -106,16 +95,50 @@ docker-compose up --build
 ## 📁 Estructura del Proyecto
 
 ```
-Proyecto_final_dist/
-├── docker-compose.yml          # Configuración de todos los contenedores
-├── nginx.conf                  # Configuración del balanceador de carga
-├── servidor1/                  # Primera instancia del servidor
-│   ├── app.py                 # Código principal de la aplicación
-│   ├── Dockerfile             # Instrucciones para crear el contenedor
-│   ├── requirements.txt       # Librerías de Python necesarias
-│   └── templates/             # Páginas web HTML
-├── servidor2/                  # Segunda instancia (idéntica a servidor1)
-└── servidor3/                  # Tercera instancia (idéntica a servidor1)
+Proyecto_Final_Dist/
+├── docker-compose.yml           # Configuración de todos los contenedores
+├── nginx.conf                   # Configuración del balanceador de carga
+├── README.md                    # Documentación del proyecto
+├── init/                        # Scripts de inicialización de las bases de datos
+│   ├── esclavo_replicacion.sql
+│   ├── init_replication.sql
+│   ├── productos.sql
+│   └── usuarios.sql
+├── mysql/                       # Configuración de MySQL maestro y esclavo
+│   ├── esclavo/
+│   │   └── esclavo.cnf
+│   └── maestro/
+│       └── maestro.cnf
+├── servidor1/                   # Primera instancia del servidor
+│   ├── app.py                   # Código principal de la aplicación
+│   ├── Dockerfile               # Instrucciones para crear el contenedor
+│   ├── requirements.txt         # Librerías de Python necesarias
+│   └── templates/               # Páginas web HTML
+│       ├── actualizar_producto.html
+│       ├── home.html
+│       ├── login.html
+│       ├── registro_producto.html
+│       └── registro_usuario.html
+├── servidor2/                   # Segunda instancia (idéntica a servidor1)
+│   ├── app.py
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── templates/
+│       ├── actualizar_producto.html
+│       ├── home.html
+│       ├── login.html
+│       ├── registro_producto.html
+│       └── registro_usuario.html
+├── servidor3/                   # Tercera instancia (idéntica a servidor1)
+│   ├── app.py
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── templates/
+│       ├── actualizar_producto.html
+│       ├── home.html
+│       ├── login.html
+│       ├── registro_producto.html
+│       └── registro_usuario.html
 ```
 
 ## 🔍 ¿Cómo funciona el balanceador?
@@ -126,5 +149,3 @@ Proyecto_final_dist/
 4. **Redirección**: Envía la petición al servidor elegido
 5. **Respuesta**: El servidor procesa y devuelve la página web
 6. **Usuario**: Ve la página en su navegador
-
-Este sistema es ideal para **empresas** o **organizaciones** que necesitan un sistema robusto y confiable para manejar muchos usuarios al mismo tiempo.
