@@ -311,6 +311,7 @@
         </div>
 
         <!-- Tabla de productos -->
+        <!-- Tabla de productos -->
         {% if productos and productos|length > 0 %}
             <table>
                 <thead>
@@ -320,13 +321,14 @@
                         <th>Descripción</th>
                         <th>Unidades</th>
                         <th>Categoría</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for producto in productos %}
-                        <tr{% if producto[3]|int == 0 %} class="out-of-stock"{% endif %}>
-                            <td>{{ producto[1] }}</td>
+                        <tr>
                             <td>{{ producto[0] }}</td>
+                            <td>{{ producto[1] }}</td>
                             <td>{{ producto[2] }}</td>
                             <td{% if producto[3]|int == 0 %} class="zero-stock"{% endif %}>
                                 {{ producto[3] }}
@@ -335,6 +337,19 @@
                                 {% endif %}
                             </td>
                             <td>{{ producto[4] }}</td>
+                            <td style="display: flex; gap: 8px;">
+                                <a href="{{ url_for('actualizar_producto', codigo=producto[0]) }}" 
+                                   style="background-color: #ffc107; color: #000; padding: 4px 8px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 500; transition: background-color 0.2s;">
+                                    Actualizar
+                                </a>
+                                <!-- Botón Eliminar con confirmación -->
+                                <form method="POST" action="{{ url_for('eliminar_producto', codigo=producto[0]) }}" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.');">
+                                    <button type="submit"
+                                            style="background-color: #dc3545; color: white; padding: 4px 8px; border: none; border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer;">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

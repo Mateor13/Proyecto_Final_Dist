@@ -79,6 +79,29 @@ def validar_datos_registro_producto(nombre, codigo, descripcion, unidad, categor
     # Siempre retornar lista (vacía si no hay errores)
     return errores
 
+# Validar datos de la actualización de productos (sin validar código)
+def validar_datos_actualizacion_producto(nombre, descripcion, unidad, categoria):
+    """Validar los datos de la actualización de productos (sin código)"""
+    errores = []
+    # Validar campos obligatorios
+    if not nombre or not descripcion or not unidad or not categoria:
+        errores.append("Todos los campos son obligatorios.")
+        return errores
+    # Validar nombre
+    if len(nombre.strip()) < 3:
+        errores.append("El nombre debe tener al menos 3 caracteres.")
+    # Validar descripción
+    if len(descripcion.strip()) < 10:
+        errores.append("La descripción debe tener al menos 10 caracteres.")
+    # Validar unidad
+    if not unidad.isdigit() or int(unidad) <= 0:
+        errores.append("La unidad debe ser un número entero positivo.")
+    # Validar categoría
+    if not categoria.strip():
+        errores.append("La categoría es obligatoria.")
+    # Siempre retornar lista (vacía si no hay errores)
+    return errores
+
 # Validar datos del inicio de sesión
 def validar_datos_login(email, password):
     """Validar los datos de inicio de sesión"""
@@ -321,6 +344,97 @@ def registro_producto():
             if conn:
                 conn.close()
     return render_template('registro_producto.html')
+
+@app.route('/actualizar-producto/<codigo>', methods=['GET', 'POST'])
+def actualizar_producto(codigo):
+    """Ruta para actualizar productos (sin modificar el código)"""
+    #Conectar a la base de datos
+    conn = obtener_conexion_productos()
+    if conn is None:
+        flash("Error al conectar a la base de datos.", 'error')
+        return redirect(url_for('listar_productos'))
+    
+    try:
+        cursor = conn.cursor()
+        
+        if request.method == 'GET':
+            # Obtener los datos actuales del producto por código
+            cursor.execute("SELECT codigo, nombre, descripcion, unidad, categoria FROM productos WHERE codigo = %s", (codigo,))
+            producto = cursor.fetchone()
+            if not producto:
+                flash("Producto no encontrado.", 'error')
+                return redirect(url_for('listar_productos'))
+            
+            # Convertir la tupla a diccionario para facilitar el acceso
+            producto_dict = {
+                'codigo': producto[0],
+                'nombre': producto[1],
+                'descripcion': producto[2],
+                'unidad': producto[3],
+                'categoria': producto[4]
+            }
+            return render_template('actualizar_producto.html', producto=producto_dict)
+        
+        elif request.method == 'POST':
+            # Procesar la actualización (sin código - el código NO se recibe del formulario)
+            nombre = request.form.get('nombre', '').strip()
+            descripcion = request.form.get('descripcion', '').strip()
+            unidad = request.form.get('unidad', '').strip()
+            categoria = request.form.get('categoria', '').strip()
+            
+            # Validar los datos usando la función específica para actualización (sin código)
+            errores = validar_datos_actualizacion_producto(nombre, descripcion, unidad, categoria)
+            if errores:
+                for error in errores:
+                    flash(error, 'error')
+                producto_dict = {
+                    'codigo': codigo,
+                    'nombre': nombre,
+                    'descripcion': descripcion,
+                    'unidad': unidad,
+                    'categoria': categoria
+                }
+                return render_template('actualizar_producto.html', producto=producto_dict)
+            
+            # Actualizar el producto (SOLO los campos permitidos - SIN código)
+            cursor.execute("""
+                UPDATE productos 
+                SET nombre = %s, descripcion = %s, unidad = %s, categoria = %s 
+                WHERE codigo = %s
+            """, (nombre, descripcion, unidad, categoria, codigo))
+            conn.commit()
+            
+            flash("Producto actualizado exitosamente.", 'success')
+            return redirect(url_for('listar_productos'))
+            
+    except Error as e:
+        logger.error(f"Error al actualizar producto: {e}")
+        flash("Error al actualizar producto.", 'error')
+        return redirect(url_for('listar_productos'))
+    finally:
+        if conn:
+            conn.close()
+
+@app.route('/eliminar-producto/<codigo>',  methods=['GET', 'POST'])
+def eliminar_producto(codigo):
+    """Ruta para eliminar productos con confirmación"""
+    conn = obtener_conexion_productos()
+    if conn is None:
+        flash("Error al conectar a la base de datos.", 'error')
+        return redirect(url_for('listar_productos'))
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM productos WHERE codigo = %s", (codigo,))
+        conn.commit()
+        flash("Producto eliminado exitosamente.", 'success')
+    except Error as e:
+        logger.error(f"Error al eliminar producto: {e}")
+        flash("Error al eliminar el producto.", 'error')
+    finally:
+        if conn:
+            conn.close()
+    return redirect(url_for('listar_productos'))
 
 @app.route('/logout')
 def logout():
