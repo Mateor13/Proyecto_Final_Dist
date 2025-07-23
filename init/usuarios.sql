@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 
 -- Insertar registros en usuarios
 INSERT INTO usuarios (nombre, apellido, email, password) VALUES
-('Mateo', 'Torres', 'mateo.torres@epn.edu.ec', '1234'),
+('Mateo', 'Torres', 'mateo.torres@epn.edu.ec', 'mateo1234'),
 ('Mireya', 'García', 'mireya.garcia@epn.edu.ec', 'mire1234'),
 ('Anthony', 'Astudillo', 'anthony.astudillo@epn.edu.ec', 'antuan1234'),
 ('Walter', 'Cobacango', 'walter.cobacango@epn.edu.ec', 'walter1234');

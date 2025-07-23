@@ -36,6 +36,34 @@ services:
     networks:
       - red_proyectof
 
+  # phpMyAdmin para el servidor maestro
+  phpmyadmin_maestro:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_maestro_proyectof
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql_maestro_replicado
+      PMA_PORT: 3306
+    depends_on:
+      - mysql_maestro_replicado
+    networks:
+      - red_proyectof
+
+  # phpMyAdmin para el servidor esclavo
+  phpmyadmin_esclavo:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_esclavo_proyectof
+    ports:
+      - "8082:80"
+    environment:
+      PMA_HOST: mysql_esclavo_replicado
+      PMA_PORT: 3306
+    depends_on:
+      - mysql_esclavo_replicado
+    networks:
+      - red_proyectof
+
   # Servidor 1
   servidor1:
     build:
