@@ -1,0 +1,118 @@
+services:
+  # MySQL Maestro
+  mysql_maestro_replicado:
+    image: mysql:5.7
+    container_name: mysql_maestro_replicado
+    command: --server-id=100 --log-bin=mysql-bin --binlog-do-db=usuariosdb --binlog-do-db=productosdb
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: usuariosdb
+      LANG: en_US.UTF-8
+    ports:
+      - "3310:3306"
+    volumes:
+      - ./mysql/maestro/maestro.cnf:/etc/mysql/conf.d/maestro.cnf
+      - ./init/init_replication.sql:/docker-entrypoint-initdb.d/00-init_replication.sql
+      - ./init/usuarios.sql:/docker-entrypoint-initdb.d/01-usuarios.sql
+      - ./init/productos.sql:/docker-entrypoint-initdb.d/02-productos.sql
+    networks:
+      - red_proyectof
+
+  # MySQL Esclavo
+  mysql_esclavo_replicado:
+    image: mysql:5.7
+    container_name: mysql_esclavo_replicado
+    command: --server-id=200 --relay-log=mysql-relay-bin --read-only=1
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      LANG: en_US.UTF-8
+    depends_on:
+      - mysql_maestro_replicado
+    ports:
+      - "3311:3306"
+    volumes:
+      - ./mysql/esclavo/esclavo.cnf:/etc/mysql/conf.d/esclavo.cnf
+      - ./init/esclavo_replicacion.sql:/docker-entrypoint-initdb.d/esclavo_replicacion.sql
+    networks:
+      - red_proyectof
+
+  # Servidor 1
+  servidor1:
+    build:
+      context: .
+      dockerfile: ./servidor1/Dockerfile
+    container_name: servidor1_container
+    depends_on:
+      - mysql_maestro_replicado
+    ports:
+      - "3001:3000"
+    environment:
+      - DB_HOST=mysql_maestro_replicado
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=123456
+      - DB_USUARIOS=usuariosdb
+      - DB_PRODUCTOS=productosdb
+    networks:
+      - red_proyectof
+
+  # Servidor 2
+  servidor2:
+    build:
+      context: .
+      dockerfile: ./servidor2/Dockerfile
+    container_name: servidor2_container
+    depends_on:
+      - mysql_maestro_replicado
+    ports:
+      - "3002:3000"
+    environment:
+      - DB_HOST=mysql_maestro_replicado
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=123456
+      - DB_USUARIOS=usuariosdb
+      - DB_PRODUCTOS=productosdb
+    networks:
+      - red_proyectof
+
+  # Servidor 3
+  servidor3:
+    build:
+      context: .
+      dockerfile: ./servidor3/Dockerfile
+    container_name: servidor3_container
+    depends_on:
+      - mysql_maestro_replicado
+    ports:
+      - "3003:3000"
+    environment:
+      - DB_HOST=mysql_maestro_replicado
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=123456
+      - DB_USUARIOS=usuariosdb
+      - DB_PRODUCTOS=productosdb
+    networks:
+      - red_proyectof
+
+  # NGINX Balanceador
+  nginx:
+    image: nginx
+    container_name: nginx_balanceador_proyectof
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - servidor1
+      - servidor2
+      - servidor3
+    networks:
+      - red_proyectof
+
+networks:
+  red_proyectof:
+    driver: bridge
+
+

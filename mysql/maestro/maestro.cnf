@@ -1,0 +1,11 @@
+[mysqld]
+server-id=1
+log-bin=mysql-bin
+binlog_do_db=usuariosdb
+binlog_do_db=productosdb
+bind-address=0.0.0.0
+sync_binlog=1
+innodb_flush_log_at_trx_commit=1
+
+# Configuraciones específicas para MySQL 5.7
+log-slave-updates=1

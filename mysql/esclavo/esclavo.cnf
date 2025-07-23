@@ -1,0 +1,11 @@
+[mysqld]
+server-id=2
+relay-log=mysql-relay-bin
+bind-address=0.0.0.0
+log-slave-updates=1
+read-only=1
+replicate-do-db=usuariosdb
+replicate-do-db=productosdb
+
+# Configuraciones específicas para MySQL 5.7
+skip-slave-start=1
